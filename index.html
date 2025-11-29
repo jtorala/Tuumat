@@ -2,85 +2,141 @@
 <html lang="fi">
 <head>
 <meta charset="UTF-8">
-<title>Tuumat Milleiksi 1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuumat Milleiksi 1.1</title>
+
 <style>
     body {
         font-family: Arial, sans-serif;
-        max-width: 450px;
-        margin: 0 auto;
+        margin: 0;
         padding: 20px;
+        background: #f3f4f6;
     }
+
+    .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
     h1 {
         color: #333;
+        font-size: 28px;
+        margin-bottom: 10px;
+        text-align: center;
     }
+
     a {
-        color: blue;
+        display: block;
+        text-align: center;
+        margin-bottom: 15px;
+        color: #2563eb;
+        font-size: 18px;
+        word-break: break-all;
         text-decoration: none;
     }
-    #results {
+
+    p {
+        font-size: 18px;
+        line-height: 1.4;
+        color: #444;
+        text-align: center;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px;
+        font-size: 18px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
         margin-top: 15px;
+        box-sizing: border-box;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #2563eb;
+    }
+
+    button {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 12px;
+    }
+
+    button:hover {
+        background: #1e4fc7;
+    }
+
+    #results {
+        margin-top: 20px;
         white-space: pre-line;
         font-family: monospace;
-    }
-    input, button {
-        padding: 6px 10px;
-        font-size: 16px;
+        font-size: 18px;
+        padding: 15px;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        min-height: 40px;
     }
 </style>
 </head>
 <body>
 
-<h2><a href="https://www.youtube.com/@torala" target="_blank">www.youtube.com/@torala</a></h2>
+<div class="container">
+    <a href="https://www.youtube.com/@torala" target="_blank">www.youtube.com/@torala</a>
 
-<h1>Tuumat milleiksi</h1>
-<p></p>
-<p>Voit syöttää tuumat murtolukuina esim. 7/8, sekalukuina 2 7/8, tai desimaaleina 0,875 tai .875</p>
+    <h1>Tuumat milleiksi</h1>
 
-<input id="inputField" type="text" placeholder="Syötä tuumat">
-<button onclick="convert()">Muunna</button>
+    <p>Syötä tuumat murtolukuina (7/8), sekalukuina (2 7/8), tai desimaaleina (0.875).</p>
 
-<div id="results"></div>
+    <input id="inputField" type="text" placeholder="Syötä tuumat">
+    <button onclick="convert()">Muunna</button>
+    <button id="copyBtn" onclick="copyLast()" style="margin-top:10px;">Kopioi viimeisin</button>
+
+    <div id="results"></div>
+</div>
 
 <script>
 document.getElementById("inputField").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        convert();
-    }
+    if (e.key === "Enter") convert();
 });
 
 let results = [];
 
 function convert() {
-    const input = document.getElementById("inputField").value.trim();
+    const inputField = document.getElementById("inputField");
+    const input = inputField.value.trim();
     const original = input;
     let inches = null;
 
     // Murtoluku X/Y
     let fraction = input.match(/^(\d+)\/(\d+)$/);
-    if (fraction) {
-        inches = parseFloat(fraction[1]) / parseFloat(fraction[2]);
-    }
+    if (fraction) inches = parseFloat(fraction[1]) / parseFloat(fraction[2]);
 
     // Desimaali (myös pilkulla)
     if (inches === null) {
         let decimal = input.replace(",", ".");
-        if (/^\d*[.]?\d+$/.test(decimal)) {
-            inches = parseFloat(decimal);
-        }
+        if (/^\d*[.]?\d+$/.test(decimal)) inches = parseFloat(decimal);
     }
 
-    // Sekaluku "X Y/Z"
+    // Sekaluku X Y/Z
     if (inches === null) {
         let mixed = input.match(/^(\d+)\s*(\d+)\/(\d+)$/);
-        if (mixed) {
-            inches = parseFloat(mixed[1]) +
-                     parseFloat(mixed[2]) / parseFloat(mixed[3]);
-        }
+        if (mixed) inches = parseFloat(mixed[1]) + (parseFloat(mixed[2]) / parseFloat(mixed[3]));
     }
 
     if (inches === null) {
         alert("Virheellinen syöte");
-        //document.getElementById("inputField").value = "";
         return;
     }
 
@@ -91,10 +147,37 @@ function convert() {
     if (results.length > 10) results.pop();
 
     document.getElementById("results").innerText = results.join("\n");
-    document.getElementById("inputField").value = "";
-}
-</script>
 
+    inputField.value = "";
+}
+function copyLast() {
+    if (results.length === 0) {
+        alert("Ei kopioitavaa – tee ensin muunnos.");
+        return;
+    }
+
+    // Uusin tulos (esim. `3/8" = 9.525 mm`)
+    const last = results[0];
+
+    // Erotetaan vain mm-arvo
+    const match = last.match(/=\s*([\d.]+)\s*mm/);
+    if (!match) {
+        alert("Virhe: tulosta ei voitu lukea.");
+        return;
+    }
+
+    let mmValue = match[1];  // esim. "9.525"
+
+    // Vaihdetaan piste pilkuksi
+    mmValue = mmValue.replace(".", ",");
+
+    // Kopiointi leikepöydälle
+    navigator.clipboard.writeText(mmValue)
+        .then(() => alert("Kopioitu leikepöydälle: " + mmValue))
+        .catch(err => alert("Kopiointi epäonnistui: " + err));
+}
+
+
+</script>
 </body>
 </html>
-
