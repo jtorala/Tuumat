@@ -332,7 +332,7 @@ if (maxDen === "pipe") {
     const diffText = Math.abs(p.diff).toFixed(3).replace(".", ",");
 
     results.unshift(
-        `${mm.toFixed(3).replace(".", ",")} mm = G ${p.size} (Ø${p.approxOd.toFixed(3).replace(".", ",")} mm)`
+        `${original} mm = G ${p.size} (Ø${p.approxOd.toFixed(3).replace(".", ",")} mm)`
     );
 
     lastConvertedValue = `G ${p.size}`;
@@ -355,7 +355,7 @@ if (maxDen === "pipe") {
 
     // Muoto: (9,525 mm, −0,475 mm)
     results.unshift(
-        `${mm.toFixed(3).replace(".", ",")} mm = ${inchText}" (${roundedMmText} mm, ${diffText} mm)`
+        `${original} mm = ${inchText}" (${roundedMmText} mm, ${diffText} mm)`
     );
 
     lastConvertedValue = inchText;
